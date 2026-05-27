@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Training artifacts (large, regenerable)
+checkpoints/
+runs/
+wandb/
+*.bin
+*.safetensors
+*.pt
+*.pth
+data/shards/
+data/cache/
+
+# Tokenizer artifacts (small but regenerable)
+tokenizer/*.json
+!tokenizer/train_tokenizer.py
+
+# Logs
+*.log
+logs/
+
+# Env
+.env
+.env.local

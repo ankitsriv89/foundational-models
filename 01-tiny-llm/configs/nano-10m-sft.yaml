@@ -1,0 +1,40 @@
+# SFT config — fine-tune the pretrained base model on Dolly-15k.
+
+# Path to the base model checkpoint (output of Phase 4).
+init_from: checkpoints/pretrain/best.pt
+
+# ----- data -----
+data:
+  sft_dir: data/sft         # produced by data/prepare_sft.py
+  ids_file: train.bin
+  mask_file: train_mask.bin
+
+# ----- training -----
+train:
+  micro_batch_size: 32      # smaller because SFT examples are short
+  grad_accum_steps: 4
+  block_size: 1024          # matches pretrain config; longer than most Dolly examples
+
+  # SFT runs a handful of epochs, not a fixed step count.
+  num_epochs: 2
+
+  # Lower LR than pretraining — we don't want to wash out what was learned.
+  lr: 1.0e-5
+  min_lr: 1.0e-6
+  warmup_steps: 50
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  grad_clip: 1.0
+
+  dtype: bfloat16
+
+  log_interval: 10
+  eval_interval: 100        # we eval on a held-out tail of the SFT set
+  save_interval: 200
+  out_dir: checkpoints/sft
+
+  wandb:
+    enabled: true
+    project: tiny-llm
+    run_name: nano-10m-sft

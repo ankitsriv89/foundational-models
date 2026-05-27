@@ -1,0 +1,61 @@
+# Pretraining config for the ~10M-param tiny LLM.
+# Designed for a single H100 (80GB), spot pricing on RunPod (~$2/hr).
+# Expected wall-clock: 10-20 hours. Expected cost: $20-40.
+
+# ----- model -----
+model:
+  vocab_size: 8192
+  block_size: 1024
+  n_layer: 6
+  n_head: 6
+  n_kv_head: 2
+  n_embd: 384
+  ffn_mult: 4
+  rope_base: 10000.0
+  norm_eps: 1.0e-5
+  dropout: 0.0
+
+# ----- data -----
+data:
+  shard_dir: data/shards
+  train_glob: "train_*.bin"
+  val_glob: "val_*.bin"
+
+# ----- training -----
+train:
+  # We aim for ~0.5M tokens per optimizer step (a common LLM target).
+  # micro_batch * block_size * grad_accum = tokens_per_step
+  # 64 * 1024 * 8 = 524,288 ≈ 0.5M tokens/step.
+  micro_batch_size: 64
+  grad_accum_steps: 8
+  # Total tokens: tokens_per_step * max_steps
+  # 524288 * 2000 ≈ 1.05B tokens.
+  max_steps: 2000
+
+  # AdamW. Standard LLM hyperparams.
+  lr: 3.0e-4
+  min_lr: 3.0e-5
+  warmup_steps: 100
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  grad_clip: 1.0
+
+  # Mixed precision. bf16 if available (H100/A100), else fp16.
+  dtype: bfloat16
+
+  # Checkpointing + logging.
+  eval_interval: 100      # how often to compute val loss
+  eval_iters: 50          # how many val batches per eval
+  log_interval: 10        # how often to log train loss
+  save_interval: 500      # how often to checkpoint
+  out_dir: checkpoints/pretrain
+
+  # Optional: resume from a previous run.
+  resume: false
+
+  # W&B logging.
+  wandb:
+    enabled: true
+    project: tiny-llm
+    run_name: nano-10m-pretrain
