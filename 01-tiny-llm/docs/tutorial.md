@@ -4,6 +4,8 @@ A narrative walkthrough that builds intuition for *why* the model works, not jus
 
 **Status:** skeleton. Each section will be written in full as the corresponding part of the project is built. The headings below define the learning path.
 
+**Before reading this:** if you want to understand the full pipeline (data → tokenizer → pretraining → SFT → alignment) before diving into the architecture details, read [`from-scratch.md`](./from-scratch.md) first.
+
 ---
 
 ## How to use this document
